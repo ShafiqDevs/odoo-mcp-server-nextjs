@@ -1,6 +1,7 @@
 import { tool } from 'ai';
 import z from 'zod';
 import jayson from 'jayson/promise';
+import { ToolReturn } from '../../types/mcp-tools';
 
 interface OdooConnection {
 	url: string;
@@ -224,12 +225,27 @@ export const establish_odoo_connection = tool({
 export { OdooJsonRpcClient, type OdooConnection };
 
 // function to feed to MCP server.tool()
-export async function connectToOdoo(input: {
-	url: string;
-	db: string;
-	username: string;
-	password: string;
-}): Promise<{ content: [{ type: 'text'; text: string }] }> {
+const zodInputSchema = z.object({
+	url: z
+		.string()
+		.url()
+		.describe(
+			'The URL of the Odoo instance (e.g., http://localhost:8069).'
+		),
+	db: z.string().min(2).max(100).describe('The database name.'),
+	username: z
+		.string()
+		.min(1)
+		.describe('The username for authentication.'),
+	password: z
+		.string()
+		.min(1)
+		.describe('The password for authentication.'),
+});
+type InputSchema = z.infer<typeof zodInputSchema>;
+export async function connectToOdoo(
+	input: InputSchema
+): Promise<ToolReturn> {
 	{
 		const { url, db, username, password } = input;
 		const client = new OdooJsonRpcClient();
@@ -322,3 +338,11 @@ export async function connectToOdoo(input: {
 		}
 	}
 }
+
+export const connectToOdooObject = {
+	name: 'connectToOdoo',
+	description:
+		'Establish a connection to an Odoo instance using JSON-RPC (Jayson library) and validate the credentials.',
+	input: zodInputSchema,
+	cb: connectToOdoo,
+};

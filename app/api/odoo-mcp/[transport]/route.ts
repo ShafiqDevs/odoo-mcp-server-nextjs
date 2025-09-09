@@ -2,6 +2,7 @@ import {
 	connectionSchema,
 	getModelFieldsObject,
 } from '@/app/utils/tools/odoo/crud_operations/get_model_fields';
+import { createRecordsObject } from '@/app/utils/tools/odoo/crud_operations/create_record';
 import {
 	connectToOdoo,
 	connectToOdooObject,
@@ -22,6 +23,12 @@ const handler = createMcpHandler(
 				getModelFieldsObject.description,
 				getModelFieldsObject.input.shape,
 				getModelFieldsObject.cb
+			),
+			server.tool(
+				createRecordsObject.name,
+				createRecordsObject.description,
+				createRecordsObject.input.shape,
+				createRecordsObject.cb
 			);
 	},
 	{
@@ -32,6 +39,9 @@ const handler = createMcpHandler(
 				},
 				[getModelFieldsObject.name]: {
 					description: getModelFieldsObject.description,
+				},
+				[createRecordsObject.name]: {
+					description: createRecordsObject.description,
 				},
 			},
 		},

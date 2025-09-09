@@ -5,6 +5,7 @@ import {
 import { createRecordsObject } from '@/app/utils/tools/odoo/crud_operations/create_record';
 import { deleteRecordObject } from '@/app/utils/tools/odoo/crud_operations/delete_record';
 import { smartSearchObject } from '@/app/utils/tools/odoo/crud_operations/smart_search';
+import { updateRecordObject } from '@/app/utils/tools/odoo/crud_operations/update_record';
 import {
 	connectToOdoo,
 	connectToOdooObject,
@@ -43,6 +44,12 @@ const handler = createMcpHandler(
 				smartSearchObject.description,
 				smartSearchObject.input.shape,
 				smartSearchObject.cb
+			),
+			server.tool(
+				updateRecordObject.name,
+				updateRecordObject.description,
+				updateRecordObject.input.shape,
+				updateRecordObject.cb
 			);
 	},
 	{
@@ -62,6 +69,9 @@ const handler = createMcpHandler(
 				},
 				[smartSearchObject.name]: {
 					description: smartSearchObject.description,
+				},
+				[updateRecordObject.name]: {
+					description: updateRecordObject.description,
 				},
 			},
 		},

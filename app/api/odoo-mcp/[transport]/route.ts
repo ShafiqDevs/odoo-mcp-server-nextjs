@@ -4,6 +4,7 @@ import {
 } from '@/app/utils/tools/odoo/crud_operations/get_model_fields';
 import { createRecordsObject } from '@/app/utils/tools/odoo/crud_operations/create_record';
 import { deleteRecordObject } from '@/app/utils/tools/odoo/crud_operations/delete_record';
+import { smartSearchObject } from '@/app/utils/tools/odoo/crud_operations/smart_search';
 import {
 	connectToOdoo,
 	connectToOdooObject,
@@ -36,6 +37,12 @@ const handler = createMcpHandler(
 				deleteRecordObject.description,
 				deleteRecordObject.input.shape,
 				deleteRecordObject.cb
+			),
+			server.tool(
+				smartSearchObject.name,
+				smartSearchObject.description,
+				smartSearchObject.input.shape,
+				smartSearchObject.cb
 			);
 	},
 	{
@@ -52,6 +59,9 @@ const handler = createMcpHandler(
 				},
 				[deleteRecordObject.name]: {
 					description: deleteRecordObject.description,
+				},
+				[smartSearchObject.name]: {
+					description: smartSearchObject.description,
 				},
 			},
 		},

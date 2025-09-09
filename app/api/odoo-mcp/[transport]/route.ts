@@ -3,6 +3,7 @@ import {
 	getModelFieldsObject,
 } from '@/app/utils/tools/odoo/crud_operations/get_model_fields';
 import { createRecordsObject } from '@/app/utils/tools/odoo/crud_operations/create_record';
+import { deleteRecordObject } from '@/app/utils/tools/odoo/crud_operations/delete_record';
 import {
 	connectToOdoo,
 	connectToOdooObject,
@@ -29,6 +30,12 @@ const handler = createMcpHandler(
 				createRecordsObject.description,
 				createRecordsObject.input.shape,
 				createRecordsObject.cb
+			),
+			server.tool(
+				deleteRecordObject.name,
+				deleteRecordObject.description,
+				deleteRecordObject.input.shape,
+				deleteRecordObject.cb
 			);
 	},
 	{
@@ -42,6 +49,9 @@ const handler = createMcpHandler(
 				},
 				[createRecordsObject.name]: {
 					description: createRecordsObject.description,
+				},
+				[deleteRecordObject.name]: {
+					description: deleteRecordObject.description,
 				},
 			},
 		},

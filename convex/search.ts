@@ -3,6 +3,8 @@ import { query, action } from "./_generated/server";
 
 /**
  * Vector search for finding relevant knowledge chunks
+ * Note: Vector search MUST be an action in Convex (not a query)
+ * But we'll keep it minimal and do the heavy lifting in Next.js server actions
  */
 
 // Query to get embeddings count (for debugging)
@@ -14,7 +16,18 @@ export const getEmbeddingsCount = query({
   },
 });
 
-// Vector search action - must be an action because vector search is not available in queries
+// Query to get a single embedding by ID
+export const getEmbedding = query({
+  args: {
+    id: v.id("embeddings"),
+  },
+  handler: async (ctx, args) => {
+    return await ctx.db.get(args.id);
+  },
+});
+
+// Vector search action - minimal, just returns IDs and scores
+// The actual document fetching will be done in the Next.js server action
 export const vectorSearch = action({
   args: {
     embedding: v.array(v.float64()),
@@ -29,6 +42,8 @@ export const vectorSearch = action({
       limit: limit,
     });
     
+    // Just return the search results with IDs and scores
+    // The Next.js server action will fetch the actual documents
     return results;
   },
 });

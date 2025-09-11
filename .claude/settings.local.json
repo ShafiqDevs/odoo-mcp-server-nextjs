@@ -7,7 +7,10 @@
       "Bash(npm run build:*)",
       "Bash(git add:*)",
       "Bash(taskkill:*)",
-      "Bash(powershell:*)"
+      "Bash(powershell:*)",
+      "Bash(timeout 5 sleep 5)",
+      "Bash(node:*)",
+      "Bash(rm:*)"
     ],
     "deny": []
   }

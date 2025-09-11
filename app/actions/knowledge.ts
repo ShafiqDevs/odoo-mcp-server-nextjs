@@ -184,7 +184,7 @@ export async function searchKnowledgeAction(
     // Generate embedding for the query
     const queryEmbedding = await generateEmbedding(query);
     
-    // Perform vector search
+    // Perform vector search (returns IDs and scores only)
     const searchResults = await client.action(api.search.vectorSearch, {
       embedding: queryEmbedding,
       limit: limit * 2, // Get more to filter by threshold
@@ -199,17 +199,22 @@ export async function searchKnowledgeAction(
       };
     }
     
-    // Filter by threshold and limit
+    // Filter by threshold
     const filteredResults = searchResults
       .filter((result: any) => result._score >= threshold)
       .slice(0, limit);
     
-    // Format results
-    const results = filteredResults.map((result: any) => ({
-      content: result.content,
-      confidence: result._score,
-      resource_id: result.resource_id,
-    }));
+    // Fetch the actual embedding documents with content
+    const results = await Promise.all(
+      filteredResults.map(async (result: any) => {
+        const embedding = await client.query(api.search.getEmbedding, { id: result._id });
+        return {
+          content: embedding?.content || "Content not available",
+          confidence: result._score,
+          resource_id: embedding?.resource_id,
+        };
+      })
+    );
     
     return {
       success: true,

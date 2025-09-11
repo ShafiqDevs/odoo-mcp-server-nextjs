@@ -12,7 +12,9 @@
       "Bash(node:*)",
       "Bash(rm:*)",
       "Bash(cat:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(npx:*)",
+      "Bash(pkill:*)"
     ],
     "deny": []
   }

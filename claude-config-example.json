@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "odoo-mcp": {
+      "command": "node",
+      "args": ["C:\\Users\\Shafiq\\odoo-mcp-server-nextjs\\mcp-server.js"],
+      "env": {
+        "NEXT_PUBLIC_CONVEX_URL": "your-convex-url",
+        "CONVEX_DEPLOYMENT": "your-deployment-id",
+        "OPENAI_API_KEY": "your-openai-key"
+      }
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "odoo-mcp-server": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@vercel/mcp-proxy",
+        "http://localhost:3000/api/odoo-mcp"
+      ]
+    }
+  }
+}

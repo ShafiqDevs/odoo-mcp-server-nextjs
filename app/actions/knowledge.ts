@@ -173,10 +173,12 @@ export async function listResourcesAction() {
 /**
  * Search the knowledge base
  */
+import { SEARCH_CONFIG } from "@/lib/config/optimization";
+
 export async function searchKnowledgeAction(
   query: string,
-  limit: number = 5,
-  threshold: number = 0.7
+  limit: number = SEARCH_CONFIG.defaultLimit,
+  threshold: number = SEARCH_CONFIG.defaultThreshold
 ) {
   try {
     const client = getConvexClient();

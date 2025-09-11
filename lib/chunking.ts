@@ -3,6 +3,8 @@
  * suitable for embedding generation and vector search
  */
 
+import { CHUNK_CONFIG } from './config/optimization';
+
 export interface ChunkMetadata {
   chunkIndex: number;
   totalChunks: number;
@@ -24,8 +26,8 @@ export interface TextChunk {
  */
 export function chunkText(
   text: string,
-  maxChunkSize: number = 2000,
-  overlapSize: number = 200
+  maxChunkSize: number = CHUNK_CONFIG.chunkSize,
+  overlapSize: number = CHUNK_CONFIG.overlapSize
 ): TextChunk[] {
   if (!text || text.trim().length === 0) {
     return [];

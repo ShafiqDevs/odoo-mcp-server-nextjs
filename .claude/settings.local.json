@@ -5,7 +5,9 @@
       "Bash(npx convex dev:*)",
       "Bash(npm run dev:*)",
       "Bash(npm run build:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(taskkill:*)",
+      "Bash(powershell:*)"
     ],
     "deny": []
   }

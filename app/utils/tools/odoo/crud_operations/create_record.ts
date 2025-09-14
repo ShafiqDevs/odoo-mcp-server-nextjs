@@ -24,6 +24,10 @@ export const create_records = tool({
 	name: 'create_records',
 	description: `Create new records in any Odoo model. Can create single or multiple records in one operation.
 
+IMPORTANT FORMAT:
+The records_data parameter MUST be an object with a "values" property containing the array of records:
+records_data: { values: [ ... ] }
+
 FIELD VALUE GUIDELINES:
 • Text fields: Use strings ("name": "John Doe")  
 • Boolean fields: Use true/false ("active": true)
@@ -42,9 +46,12 @@ RELATIONAL FIELD SETUP:
 If you need to link to other records, first use smart_search to find the related record IDs, then use those IDs in the create operation.
 
 EXAMPLES:
-• Create partner: [{"name": "John Smith", "email": "john@test.com", "phone": "+1234567890"}]
-• Create multiple partners: [{"name": "Alice"}, {"name": "Bob", "email": "bob@test.com"}]
-• Create with relations: [{"name": "New Partner", "country_id": 233, "category_ids": [1, 5]}]`,
+• Create single partner: 
+  records_data: { values: [{"name": "John Smith", "email": "john@test.com", "phone": "+1234567890"}] }
+• Create multiple partners: 
+  records_data: { values: [{"name": "Alice"}, {"name": "Bob", "email": "bob@test.com"}] }
+• Create with relations: 
+  records_data: { values: [{"name": "New Partner", "country_id": 233, "category_ids": [1, 5]}] }`,
 
 	inputSchema: z.object({
 		connection: connectionSchema.describe(
@@ -57,7 +64,7 @@ EXAMPLES:
 				'The Odoo model to create records in (e.g., "res.partner", "product.product", "sale.order")'
 			),
 
-		records_data: z
+		records: z
 			.array(recordDataSchema)
 			.min(1)
 			.describe(
@@ -73,19 +80,15 @@ EXAMPLES:
 	}),
 
 	execute: async (input) => {
-		const { connection, model, records_data, fields_to_return } =
-			input;
+		const { connection, model, records, fields_to_return } = input;
 
 		const client = new OdooJsonRpcClient();
 
 		try {
 			console.log(
-				`Creating ${records_data.length} record(s) in model: ${model}`
+				`Creating ${records.length} record(s) in model: ${model}`
 			);
-			console.log(
-				'Records data:',
-				JSON.stringify(records_data, null, 2)
-			);
+			console.log('Records data:', JSON.stringify(records, null, 2));
 
 			// Step 1: Create the records using Odoo's create method
 			const createdIds = await client.call(
@@ -98,7 +101,7 @@ EXAMPLES:
 					connection.password,
 					model,
 					'create',
-					records_data, // Array of record data objects
+					records, // Array of record data objects
 				]
 			);
 
@@ -132,7 +135,7 @@ EXAMPLES:
 				? createdRecords.map((record: any) => {
 						// Return the record as-is from Odoo
 						return record;
-				  })
+					})
 				: [];
 
 			return {
@@ -170,7 +173,7 @@ EXAMPLES:
 				success: false,
 				model,
 				error: enhancedError,
-				failed_records: records_data,
+				failed_records: records,
 			};
 		}
 	},
@@ -188,12 +191,14 @@ const zodInputSchema = z.object({
 			'The Odoo model to create records in (e.g., "res.partner", "product.product", "sale.order")'
 		),
 
-	records_data: z
-		.array(recordDataSchema)
-		.min(1)
-		.describe(
-			'Array of objects containing field-value pairs for each record to create. Each object represents one new record.'
-		),
+	records_data: z.object({
+		values: z
+			.array(z.record(z.any()))
+			.min(1)
+			.describe(
+				'Array of objects containing field-value pairs for each record to create. Each object represents one new record.'
+			),
+	}),
 
 	fields_to_return: z
 		.array(z.string())
@@ -206,15 +211,23 @@ const zodInputSchema = z.object({
 type InputSchema = z.infer<typeof zodInputSchema>;
 
 // Function for MCP server.tool()
-async function createRecords(input: InputSchema): Promise<ToolReturn> {
+async function createRecords(
+	input: InputSchema
+): Promise<ToolReturn> {
 	const { connection, model, records_data, fields_to_return } = input;
+
+	// Extract the array from the object structure (for AI compatibility)
+	const records_to_create = records_data.values;
 	const client = new OdooJsonRpcClient();
 
 	try {
 		console.log(
-			`Creating ${records_data.length} record(s) in model: ${model}`
+			`Creating ${records_to_create.length} record(s) in model: ${model}`
 		);
-		console.log('Records data:', JSON.stringify(records_data, null, 2));
+		console.log(
+			'Records data:',
+			JSON.stringify(records_to_create, null, 2)
+		);
 
 		// Step 1: Create the records using Odoo's create method
 		const createdIds = await client.call(
@@ -227,7 +240,7 @@ async function createRecords(input: InputSchema): Promise<ToolReturn> {
 				connection.password,
 				model,
 				'create',
-				records_data, // Array of record data objects
+				records_to_create, // Array of record data objects
 			]
 		);
 
@@ -258,7 +271,7 @@ async function createRecords(input: InputSchema): Promise<ToolReturn> {
 			? createdRecords.map((record: any) => {
 					// Return the record as-is from Odoo
 					return record;
-			  })
+				})
 			: [];
 
 		return {
@@ -307,7 +320,7 @@ async function createRecords(input: InputSchema): Promise<ToolReturn> {
 						success: false,
 						model,
 						error: enhancedError,
-						failed_records: records_data,
+						failed_records: records_data.values,
 					}),
 				},
 			],
@@ -319,6 +332,10 @@ async function createRecords(input: InputSchema): Promise<ToolReturn> {
 export const createRecordsObject = {
 	name: 'createRecords',
 	description: `Create new records in any Odoo model. Can create single or multiple records in one operation.
+
+IMPORTANT FORMAT:
+The records_data parameter MUST be an object with a "values" property containing the array of records:
+records_data: { values: [ ... ] }
 
 FIELD VALUE GUIDELINES:
 • Text fields: Use strings ("name": "John Doe")  
@@ -338,9 +355,12 @@ RELATIONAL FIELD SETUP:
 If you need to link to other records, first use smart_search to find the related record IDs, then use those IDs in the create operation.
 
 EXAMPLES:
-• Create partner: [{"name": "John Smith", "email": "john@test.com", "phone": "+1234567890"}]
-• Create multiple partners: [{"name": "Alice"}, {"name": "Bob", "email": "bob@test.com"}]
-• Create with relations: [{"name": "New Partner", "country_id": 233, "category_ids": [1, 5]}]`,
+• Create single partner: 
+  records_data: { values: [{"name": "John Smith", "email": "john@test.com", "phone": "+1234567890"}] }
+• Create multiple partners: 
+  records_data: { values: [{"name": "Alice"}, {"name": "Bob", "email": "bob@test.com"}] }
+• Create with relations: 
+  records_data: { values: [{"name": "New Partner", "country_id": 233, "category_ids": [1, 5]}] }`,
 	input: zodInputSchema,
 	cb: createRecords,
 };

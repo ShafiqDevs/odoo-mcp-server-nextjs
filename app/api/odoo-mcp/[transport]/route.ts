@@ -1,32 +1,28 @@
-import {
-	getModelFieldsObject,
-} from '@/app/utils/tools/odoo/crud_operations/get_model_fields';
+import { getModelFieldsObject } from '@/app/utils/tools/odoo/crud_operations/get_model_fields';
 import { createRecordsObject } from '@/app/utils/tools/odoo/crud_operations/create_record';
 import { deleteRecordObject } from '@/app/utils/tools/odoo/crud_operations/delete_record';
 import { smartSearchObject } from '@/app/utils/tools/odoo/crud_operations/smart_search';
 import { updateRecordObject } from '@/app/utils/tools/odoo/crud_operations/update_record';
-import {
-	connectToOdooObject,
-} from '@/app/utils/tools/odoo/establish_connection';
+import { connectToOdooObject } from '@/app/utils/tools/odoo/establish_connection';
 import { searchKnowledgeObject } from '@/app/utils/tools/knowledge/search_knowledge';
 import { createMcpHandler } from '@vercel/mcp-adapter';
 
 const handler = createMcpHandler(
 	(server) => {
 		// Knowledge base search tool (use this first!)
-		server.tool(
+		(server.tool(
 			searchKnowledgeObject.name,
 			searchKnowledgeObject.description,
 			searchKnowledgeObject.input.shape,
 			searchKnowledgeObject.cb
 		),
-		// Odoo connection and CRUD tools
-		server.tool(
-			connectToOdooObject.name,
-			connectToOdooObject.description,
-			connectToOdooObject.input.shape,
-			connectToOdooObject.cb
-		),
+			// Odoo connection and CRUD tools
+			server.tool(
+				connectToOdooObject.name,
+				connectToOdooObject.description,
+				connectToOdooObject.input.shape,
+				connectToOdooObject.cb
+			),
 			server.tool(
 				getModelFieldsObject.name,
 				getModelFieldsObject.description,
@@ -56,7 +52,7 @@ const handler = createMcpHandler(
 				updateRecordObject.description,
 				updateRecordObject.input.shape,
 				updateRecordObject.cb
-			);
+			));
 	},
 	{
 		capabilities: {

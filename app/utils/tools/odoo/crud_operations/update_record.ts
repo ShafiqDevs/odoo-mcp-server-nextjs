@@ -17,6 +17,10 @@ export const update_record = tool({
 	name: 'update_record',
 	description: `Update a single existing record in any Odoo model using the record's numeric ID.
 
+IMPORTANT FORMAT:
+The update_data parameter MUST be an object with a "fields" property containing the field updates:
+update_data: { fields: { ... } }
+
 THIS TOOL ONLY UPDATES RECORDS - IT DOES NOT SEARCH FOR THEM.
 
 REQUIREMENTS:
@@ -45,9 +49,12 @@ FIELD VALUE TYPES:
   - Clear all: "tag_ids": [[5]]
 
 EXAMPLES:
-• update_record({model: "res.partner", record_id: 123, updates: {"name": "John Updated", "email": "john@new.com"}})
-• update_record({model: "product.product", record_id: 456, updates: {"list_price": 99.99, "active": true}})
-• update_record({model: "res.partner", record_id: 789, updates: {"country_id": 233, "category_ids": [1, 5]}})`,
+• Update partner name and email:
+  update_data: { fields: {"name": "John Updated", "email": "john@new.com"} }
+• Update product price and status:
+  update_data: { fields: {"list_price": 99.99, "active": true} }
+• Update partner with relations:
+  update_data: { fields: {"country_id": 233, "category_ids": [1, 5]} }`,
 
 	inputSchema: z.object({
 		connection: connectionSchema.describe(
@@ -263,18 +270,23 @@ const zodInputSchema = z.object({
 			"The numeric ID of the specific record to update (e.g., 123). If you don't have this, use smart_search first."
 		),
 
-	updates: z
-		.record(z.any())
-		.describe(
-			'Object containing field-value pairs to update. Example: {"name": "New Name", "email": "new@email.com", "active": true}'
-		),
+	update_data: z.object({
+		fields: z
+			.record(z.any())
+			.describe(
+				'Object containing field-value pairs to update. Example: {"name": "New Name", "email": "new@email.com", "active": true}'
+			),
+	}),
 });
 
 type InputSchema = z.infer<typeof zodInputSchema>;
 
 // Function for MCP server.tool()
 async function updateRecord(input: InputSchema): Promise<ToolReturn> {
-	const { connection, model, record_id, updates } = input;
+	const { connection, model, record_id, update_data } = input;
+	
+	// Extract the fields from the object structure (for AI compatibility)
+	const updates = update_data.fields;
 	const client = new OdooJsonRpcClient();
 
 	try {
@@ -512,6 +524,10 @@ export const updateRecordObject = {
 	name: 'updateRecord',
 	description: `Update a single existing record in any Odoo model using the record's numeric ID.
 
+IMPORTANT FORMAT:
+The update_data parameter MUST be an object with a "fields" property containing the field updates:
+update_data: { fields: { ... } }
+
 THIS TOOL ONLY UPDATES RECORDS - IT DOES NOT SEARCH FOR THEM.
 
 REQUIREMENTS:
@@ -540,9 +556,12 @@ FIELD VALUE TYPES:
   - Clear all: "tag_ids": [[5]]
 
 EXAMPLES:
-• update_record({model: "res.partner", record_id: 123, updates: {"name": "John Updated", "email": "john@new.com"}})
-• update_record({model: "product.product", record_id: 456, updates: {"list_price": 99.99, "active": true}})
-• update_record({model: "res.partner", record_id: 789, updates: {"country_id": 233, "category_ids": [1, 5]}})`,
+• Update partner name and email:
+  update_data: { fields: {"name": "John Updated", "email": "john@new.com"} }
+• Update product price and status:
+  update_data: { fields: {"list_price": 99.99, "active": true} }
+• Update partner with relations:
+  update_data: { fields: {"country_id": 233, "category_ids": [1, 5]} }`,
 	input: zodInputSchema,
 	cb: updateRecord,
 };
